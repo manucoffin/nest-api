@@ -6,6 +6,7 @@
   },
   "rules": {
     "prettier": true,
+    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}],
     "no-namespace": [true, "allow-declarations"],
     "whitespace": [
       true,

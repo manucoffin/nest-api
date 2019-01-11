@@ -2,7 +2,7 @@
   "name": "blog-api",
   "version": "0.0.1",
   "description": "It's my API for my awesome blog !",
-  "author": "millehorde",
+  "author": "manucoffin",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -22,6 +22,7 @@
   "dependencies": {
     "@nestjs/common": "^5.4.0",
     "@nestjs/core": "^5.4.0",
+    "@nestjs/swagger": "^2.5.1",
     "@types/dotenv": "^6.1.0",
     "dotenv-safe": "^6.1.0",
     "mysql": "^2.16.0",
