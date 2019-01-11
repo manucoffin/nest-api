@@ -2,21 +2,34 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Comment } from '../../comment/entity/comment.entity';
 import { UserCategory } from '../enums/user-category.enum';
 
 @Entity()
 export class User {
+  @Column({ type: 'bytea', name: 'avatar' })
+  avatar: ArrayBuffer;
+
+  @Column({
+    type: 'enum',
+    name: 'category',
+    enum: Object.keys(UserCategory).map(item => UserCategory[item]),
+    default: 'Standard',
+  })
+  category: UserCategory;
+
+  @OneToMany(type => Comment, comment => comment.author)
+  comments: Comment[];
+
   @CreateDateColumn()
   created: Date;
 
   @Column({ type: 'varchar', name: 'email', length: 200 })
   email: string;
-
-  @Column({ type: 'bytea', name: 'file' })
-  file: ArrayBuffer;
 
   @Column({ type: 'varchar', name: 'first_name', length: 100 })
   firstName: string;
@@ -32,14 +45,6 @@ export class User {
 
   @Column({ type: 'varchar', name: 'password' })
   password: string;
-
-  @Column({
-    type: 'enum',
-    name: 'type',
-    enum: Object.keys(UserCategory).map(item => UserCategory[item]),
-    default: 'Standard',
-  })
-  type: UserCategory;
 
   @UpdateDateColumn()
   updated: Date;
