@@ -7,6 +7,10 @@ export class UserService {
     @Inject(UserRepository) private readonly userRepository: UserRepository,
   ) {}
 
+  async findOneByToken(token) {
+    return this.userRepository.findOne(token);
+  }
+
   /**
    * Returns a user identified by its id
    *

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 
@@ -6,6 +14,12 @@ import { UserService } from './user.service';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get('all')
+  @UseGuards(AuthGuard('bearer'))
+  findAll() {
+    return [];
+  }
 
   @Get(':id')
   @ApiResponse({
