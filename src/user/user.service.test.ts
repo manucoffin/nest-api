@@ -24,6 +24,20 @@ describe('UserService', () => {
     });
   });
 
+  describe('findOneByEmail', () => {
+    it('should call and return repository.find with an email pass in param', async () => {
+      const email = 'georges.abitbol@mail.com';
+      const options = { where: { email } };
+      const user = { email };
+      repository.find = jest.fn().mockResolvedValue(user);
+
+      const result = await service.findOneByEmail(email);
+
+      expect(result).toBe(user);
+      expect(repository.find).toHaveBeenCalledWith(options);
+    });
+  });
+
   // describe('create', () => {
   //   it('should call and return repository.create with', async () => {
   //     const user = { name: 'toto' };
