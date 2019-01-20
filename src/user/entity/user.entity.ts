@@ -4,14 +4,20 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { Comment } from '../../comment/entity/comment.entity';
+import {
+  getCopyConstructions,
+  getOrDefault,
+} from '../../utils/copy-constructor.tools';
 import { UserCategory } from '../enums/user-category.enum';
 
 @Entity()
+@Unique(['email'])
 export class User {
-  @Column({ type: 'bytea', name: 'avatar' })
+  @Column({ type: 'bytea', name: 'avatar', nullable: true })
   avatar: ArrayBuffer;
 
   @Column({
@@ -37,6 +43,9 @@ export class User {
   @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
   id: string;
 
+  @Column({ type: 'boolean', name: 'is_author', default: false })
+  isAuthor: boolean;
+
   @Column({ type: 'varchar', name: 'last_name', length: 100 })
   lastName: string;
 
@@ -48,4 +57,16 @@ export class User {
 
   @UpdateDateColumn()
   updated: Date;
+
+  constructor(copy: Partial<User> = {}) {
+    this.email = getOrDefault(copy.email, '');
+    this.password = getOrDefault(copy.password, '');
+    this.lastName = getOrDefault(copy.lastName, '');
+    this.firstName = getOrDefault(copy.firstName, '');
+    this.mobilePhone = getOrDefault(copy.mobilePhone, '');
+    this.avatar = getOrDefault(copy.avatar, undefined) as any;
+    this.category = getOrDefault(copy.category, undefined) as any;
+    this.comments = getCopyConstructions(Comment, copy.comments) as any;
+    this.id = getOrDefault(copy.id, undefined);
+  }
 }

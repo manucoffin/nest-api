@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../user/entity/user.entity';
+import { getCopyConstructions } from '../../utils/copy-constructor.tools';
 
 @Entity()
 export class Comment {
@@ -22,4 +23,8 @@ export class Comment {
 
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
+
+  // constructor() {
+  //   this.author = getCopyConstruction(User, copy.author);
+  // }
 }

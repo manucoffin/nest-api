@@ -12,8 +12,6 @@ export class AuthService {
    * @returns Resolves with User
    */
   async validateUser(token: string): Promise<any> {
-    // Validate if token passed along with HTTP request
-    // is associated with any registered account in the database
     return await this.usersService.findOneByToken(token);
   }
 }
