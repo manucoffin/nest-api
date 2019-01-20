@@ -25,7 +25,7 @@ describe('UserService', () => {
   });
 
   describe('findOneByEmail', () => {
-    it('should call and return repository.find with an email pass in param', async () => {
+    it('should call and return repository.find with an email passed in param', async () => {
       const email = 'georges.abitbol@mail.com';
       const options = { where: { email } };
       const user = { email };
@@ -38,17 +38,17 @@ describe('UserService', () => {
     });
   });
 
-  // describe('create', () => {
-  //   it('should call and return repository.create with', async () => {
-  //     const user = { name: 'toto' };
-  //     repository.create = jest.fn().mockResolvedValue(user);
-  //
-  //     const result = await service.create(user as any);
-  //
-  //     expect(result).toBe(user);
-  //     expect(repository.save).toHaveBeenCalledWith({ ...user });
-  //   });
-  // });
+  describe('create', () => {
+    it('should call and return repository.create with a user passed in param', async () => {
+      const user = { password: 'abitbol' };
+      repository.save = jest.fn().mockResolvedValue(user);
+
+      const result = await service.create(user as any);
+
+      expect(result).toBe(user);
+      expect(repository.save).toHaveBeenCalledWith(user);
+    });
+  });
 
   // describe('deleteById', () => {
   //   it('should throw an error when user not found by its id', async () => {

@@ -60,6 +60,12 @@ export class UserService {
   //   // }
   // }
 
+  /**
+   * Returns a hashed string
+   *
+   * @param password
+   * @returns Hashed string
+   */
   async getHash(password: string | undefined): Promise<string> {
     return bcrypt.hash(password, this.saltRounds);
   }
