@@ -15,6 +15,7 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 import { ValidateEmailPipe } from './pipes/validate-email.pipe';
@@ -45,7 +46,7 @@ export class UserController {
     status: HttpStatus.OK,
     description: 'Liste des utilisateurs retournée.',
   })
-  @UseGuards(AuthGuard('bearer'))
+  @UseGuards(AuthGuard())
   findAll() {
     return [];
   }

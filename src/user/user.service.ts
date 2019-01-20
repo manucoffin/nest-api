@@ -11,6 +11,13 @@ export class UserService {
 
   private saltRounds = 10;
 
+  async compareHash(
+    password: string | undefined,
+    hash: string | undefined,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+
   /**
    * Creates a new instance of User in the database
    *
