@@ -1,5 +1,5 @@
 import { IsBoolean, IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { UserCategory } from '../enums/user-category.enum';
+import { UserCategory } from '../../user/enums/user-category.enum';
 
 export class CreateUserDto {
   readonly avatar: ArrayBuffer;
