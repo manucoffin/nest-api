@@ -19,25 +19,13 @@ export class AuthService {
   private saltRounds = 10;
 
   /**
-   * Check that the password matches the hash
-   * @param password
-   * @param hash
-   * @returns {boolean}
+   * Returns a signed JWT token
+   * @param uuid
+   * @returns {string} - signed token
    */
-  async compareHash(
-    password: string | undefined,
-    hash: string | undefined,
-  ): Promise<boolean> {
-    return bcrypt.compare(password, hash);
-  }
-
-  /**
-   * Returns a hashed string
-   * @param password
-   * @returns Hashed string
-   */
-  async getHash(password: string | undefined): Promise<string> {
-    return bcrypt.hash(password, this.saltRounds);
+  public createToken(uuid): string {
+    const userId: IJwtPayload = { uuid };
+    return this.jwtService.sign(userId);
   }
 
   /**
@@ -48,9 +36,9 @@ export class AuthService {
    * @throws {ForbiddenException} - If user is not found
    * @returns Resolves with a token
    */
-  async signIn(email: string, password: string): Promise<string> {
+  public async signIn(email: string, password: string): Promise<string> {
     if (!email || !password) {
-      throw new BadRequestException("L'email et le mot de passe sont requis.");
+      throw new BadRequestException('L\'email et le mot de passe sont requis.');
     }
 
     const user = await this.userService.findOneByEmail(email);
@@ -69,10 +57,32 @@ export class AuthService {
    * @param user
    * @returns Resolves with a User
    */
-  async signUp(user): Promise<User> {
+  public async signUp(user): Promise<User> {
     const newUser = user;
     newUser.password = await this.getHash(user.password);
     return this.userService.create(newUser);
+  }
+
+  /**
+   * Check that the password matches the hash
+   * @param password
+   * @param hash
+   * @returns {boolean}
+   */
+  protected async compareHash(
+    password: string | undefined,
+    hash: string | undefined,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+
+  /**
+   * Returns a hashed string
+   * @param password
+   * @returns Hashed string
+   */
+  protected async getHash(password: string | undefined): Promise<string> {
+    return bcrypt.hash(password, this.saltRounds);
   }
 
   /**
@@ -80,18 +90,8 @@ export class AuthService {
    * @param payload -
    * @returns {boolean} - true if the token is valid
    */
-  async validateToken(payload: IJwtPayload): Promise<boolean> {
+  protected async validateToken(payload: IJwtPayload): Promise<boolean> {
     const user = await this.userService.findOneById(payload.uuid);
     return !!user;
-  }
-
-  /**
-   * Returns a signed JWT token
-   * @param uuid
-   * @returns {string} - signed token
-   */
-  protected createToken(uuid): string {
-    const userId: IJwtPayload = { uuid };
-    return this.jwtService.sign(userId);
   }
 }

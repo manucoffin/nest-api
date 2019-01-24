@@ -45,14 +45,6 @@ export class UserService {
     return this.userRepository.findOne(token);
   }
 
-  /**
-   * Returns a user identified by its id
-   * @param id - user id
-   * @returns Resolves with User
-   */
-  async getById(id: string) {
-    return this.userRepository.findOne(id);
-  }
   // async deleteById(userId: string) {
   //   const user = await this.userRepository.findOne(userId);
   //

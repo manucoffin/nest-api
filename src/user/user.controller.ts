@@ -16,8 +16,8 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
+import { RegisterDto } from '../auth/dto/register.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
 import { ValidateEmailPipe } from './pipes/validate-email.pipe';
 import { UserService } from './user.service';
@@ -48,6 +48,6 @@ export class UserController {
     description: 'User non trouvé :/',
   })
   async getById(@Param('id') id: string) {
-    return this.userService.getById(id);
+    return this.userService.findOneById(id);
   }
 }
