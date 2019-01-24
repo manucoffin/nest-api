@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcrypt';
+import { User } from '../user/entity/user.entity';
 import { UserService } from '../user/user.service';
 import { IJwtPayload } from './interfaces/jwt-payload.interface';
 
@@ -11,51 +16,82 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  private saltRounds = 10;
+
   /**
-   * Returns a user identified by a token
-   *
-   * @param token - a bearer token
-   * @returns Resolves with User
+   * Check that the password matches the hash
+   * @param password
+   * @param hash
+   * @returns {boolean}
    */
-  // async validateUser(token: string): Promise<any> {
-  //   return await this.userService.findOneByToken(token);
-  // }
-
-  // async validateUser(payload: IJwtPayload): Promise<any> {
-  //   return await this.userService.findOneByEmail(payload.email);
-  // }
-
-  // async createToken(id: string, email: string) {
-  //   const expiresIn = process.env.JWT_EXPIRES_IN;
-  //   const secretOrKey = process.env.JWT_SECRET;
-  //   const user = { email };
-  //   const token = jwt.sign(user, secretOrKey, { expiresIn });
-  //
-  //   return { expires_in: expiresIn, token };
-  // }
-
-  async createToken(email) {
-    const user: IJwtPayload = { email };
-    const accessToken = this.jwtService.sign(user);
-    return {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-      accessToken,
-    };
+  async compareHash(
+    password: string | undefined,
+    hash: string | undefined,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hash);
   }
 
-  // async signIn(): Promise<string> {
-  //   // In the real-world app you shouldn't expose this method publicly
-  //   // instead, return a token once you verify user credentials
-  //   const user: IJwtPayload = { email: 'user@email.com' };
-  //   return this.jwtService.sign(user);
-  // }
+  /**
+   * Returns a hashed string
+   * @param password
+   * @returns Hashed string
+   */
+  async getHash(password: string | undefined): Promise<string> {
+    return bcrypt.hash(password, this.saltRounds);
+  }
 
-  async validateUser(payload: IJwtPayload): Promise<boolean> {
-    // if (signedUser && signedUser.email) {
-    // }
-    const user = await this.userService.findOneByEmail(payload.email);
-    return user.length > 0;
+  /**
+   * Returns a token if the credentials are correct
+   * @param email
+   * @param password
+   * @throws {BadRequestException} - If some of the credentials are missing
+   * @throws {ForbiddenException} - If user is not found
+   * @returns Resolves with a token
+   */
+  async signIn(email: string, password: string): Promise<string> {
+    if (!email || !password) {
+      throw new BadRequestException("L'email et le mot de passe sont requis.");
+    }
 
-    // return false;
+    const user = await this.userService.findOneByEmail(email);
+
+    if (user.length > 0) {
+      if (await this.compareHash(password, user[0].password)) {
+        return await this.createToken(user[0].email);
+      }
+    }
+
+    throw new ForbiddenException('Les identifiants sont incorrects.');
+  }
+
+  /**
+   * Register the user in DB
+   * @param user
+   * @returns Resolves with a User
+   */
+  async signUp(user): Promise<User> {
+    const newUser = user;
+    newUser.password = await this.getHash(user.password);
+    return this.userService.create(newUser);
+  }
+
+  /**
+   * Check that the token is valid
+   * @param payload -
+   * @returns {boolean} - true if the token is valid
+   */
+  async validateToken(payload: IJwtPayload): Promise<boolean> {
+    const user = await this.userService.findOneById(payload.uuid);
+    return !!user;
+  }
+
+  /**
+   * Returns a signed JWT token
+   * @param uuid
+   * @returns {string} - signed token
+   */
+  protected createToken(uuid): string {
+    const userId: IJwtPayload = { uuid };
+    return this.jwtService.sign(userId);
   }
 }

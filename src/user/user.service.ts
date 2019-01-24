@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { User } from './entity/user.entity';
 import { UserRepository } from './user.repository';
 
@@ -9,30 +8,17 @@ export class UserService {
     @Inject(UserRepository) private readonly userRepository: UserRepository,
   ) {}
 
-  private saltRounds = 10;
-
-  async compareHash(
-    password: string | undefined,
-    hash: string | undefined,
-  ): Promise<boolean> {
-    return bcrypt.compare(password, hash);
-  }
-
   /**
    * Creates a new instance of User in the database
-   *
    * @param user
    * @returns Resolves with a created User
    */
   async create(user: User) {
-    const newUser = user;
-    newUser.password = await this.getHash(user.password);
-    return this.userRepository.save(newUser);
+    return this.userRepository.save(user);
   }
 
   /**
    * Return a user identified by its email
-   *
    * @param email
    * @returns Resolves with User
    */
@@ -40,6 +26,15 @@ export class UserService {
     return this.userRepository.find({
       where: { email },
     });
+  }
+
+  /**
+   * Returns a user identified by its id
+   * @param id
+   * @returns Resolves with a User
+   */
+  async findOneById(id): Promise<User> {
+    return this.userRepository.findOne(id);
   }
 
   /**
@@ -52,7 +47,6 @@ export class UserService {
 
   /**
    * Returns a user identified by its id
-   *
    * @param id - user id
    * @returns Resolves with User
    */
@@ -66,14 +60,4 @@ export class UserService {
   //   //   throw new error
   //   // }
   // }
-
-  /**
-   * Returns a hashed string
-   *
-   * @param password
-   * @returns Hashed string
-   */
-  async getHash(password: string | undefined): Promise<string> {
-    return bcrypt.hash(password, this.saltRounds);
-  }
 }

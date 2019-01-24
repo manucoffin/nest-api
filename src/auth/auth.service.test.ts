@@ -1,3 +1,4 @@
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserRepository } from '../user/user.repository';
 import { UserService } from '../user/user.service';
@@ -5,12 +6,14 @@ import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let jwtService: JwtService;
   let repository: UserRepository = {} as any;
   const userService: UserService = new UserService(repository);
 
   beforeAll(async () => {
     repository = {} as any;
-    service = new AuthService(userService);
+    jwtService = {} as any;
+    service = new AuthService(userService, jwtService);
   });
 
   describe('validateUser', () => {

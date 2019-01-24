@@ -11,6 +11,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiResponse,
   ApiUseTags,
@@ -26,27 +27,13 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  @ApiCreatedResponse({
-    description: 'Utilisateur inséré en base.',
-  })
-  @ApiBadRequestResponse({
-    description: 'Requête mal formée.',
-  })
-  @UsePipes(ValidateEmailPipe)
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    // Create new user from dto
-    const user = new User(createUserDto);
-    // Pass the user entity to the service
-    return this.userService.create(user);
-  }
-
   @Get('all')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Liste des utilisateurs retournée.',
   })
-  @UseGuards(AuthGuard())
+  @UseGuards(new JwtAuthGuard())
+  @ApiBearerAuth()
   findAll() {
     return [];
   }

@@ -1,42 +1,46 @@
-import { Body, Controller, HttpStatus, Post, Response } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiUseTags,
+} from '@nestjs/swagger';
+import { CreateUserDto } from '../user/dto/create-user.dto';
 import { User } from '../user/entity/user.entity';
+import { ValidateEmailPipe } from '../user/pipes/validate-email.pipe';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 
+@ApiUseTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
-  async createToken(@Body() payload): Promise<any> {
-    return await this.authService.createToken(payload.email);
+  @Post('register')
+  @ApiCreatedResponse({
+    description: 'Utilisateur inséré en base.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Requête mal formée.',
+  })
+  @UsePipes(ValidateEmailPipe)
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    // Create new user from dto
+    const user = new User(createUserDto);
+    // Pass the user entity to the service
+    return this.authService.signUp(user);
   }
 
-  // @Post('login')
-  // async loginUser(@Response() res: any, @Body() body: User) {
-  //   if (!(body && body.email && body.password)) {
-  //     return res
-  //       .status(HttpStatus.FORBIDDEN)
-  //       .json({ message: 'Username and password are required!' });
-  //   }
-  //
-  //   const user = await this.userService.findOneByEmail(body.email);
-  //
-  //   if (user.length > 0) {
-  //     if (await this.userService.compareHash(body.password, user[0].password)) {
-  //       return res
-  //         .status(HttpStatus.OK)
-  //         .json(await this.authService.createToken(user[0].email));
-  //     }
-  //   }
-  //
-  //   return res
-  //     .status(HttpStatus.FORBIDDEN)
-  //     .json({ message: 'Username or password wrong!' });
-  // }
+  @Post('login')
+  @ApiOkResponse({
+    description: 'Connexion effectuée.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Requête mal formée.',
+  })
+  login(@Body() payload): Promise<string> {
+    return this.authService.signIn(payload.email, payload.password);
+  }
 
   // @Post('register')
   // async registerUser(@Response() res: any, @Body() body: User) {
