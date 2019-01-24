@@ -9,6 +9,8 @@ describe('AuthService', () => {
   let jwtService: JwtService;
   let repository: UserRepository = {} as any;
   const userService: UserService = new UserService(repository);
+  let spyUserServiceFindOneByEmail;
+  let spyAuthServiceCompareHash;
 
   beforeAll(async () => {
     repository = {} as any;
@@ -16,16 +18,84 @@ describe('AuthService', () => {
     service = new AuthService(userService, jwtService);
   });
 
-  describe('signIn', () => {
-    it('Should return a token', async () => {
-      const user = { email: 'georges.abidbol@mail.com' };
-      userService.findOneByEmail = jest.fn().mockResolvedValue(user);
-      // const result = await service.getById(id);
-      const result = await userService.findOneByEmail(user.email);
+  beforeEach(async () => {
+    const user = { email: 'georges.abidbol@mail.com' };
+    spyUserServiceFindOneByEmail = jest.spyOn(userService, 'findOneByEmail');
+    spyAuthServiceCompareHash = jest.spyOn(service, 'compareHash');
 
-      expect(result).toBe(user);
-      expect(userService.findOneByEmail).toHaveBeenCalledWith(user.email);
-      // expect(service.createToken).toHaveBeenCalledWith(result[0].email);
+    spyUserServiceFindOneByEmail.mockResolvedValue(user);
+  });
+
+  afterEach(async () => {
+    spyUserServiceFindOneByEmail.mockRestore();
+  });
+
+  describe('createToken', () => {
+    it('Should return a signed token', () => {
+      const token = 'myToken';
+      const uuid = 'myId';
+
+      jwtService.sign = jest.fn().mockReturnValue(token);
+      const result = jwtService.sign(uuid);
+
+      expect(result).toBe(token);
+      expect(jwtService.sign).toHaveBeenCalledWith(uuid);
+    });
+  });
+
+  describe('signIn', () => {
+    it('Should return the result of userService.findOneByEmail', async () => {
+      const user = { email: 'georges.abidbol@mail.com' };
+      const email = 'georges.abidbol@mail.com';
+
+      const result = await userService.findOneByEmail(email);
+
+      expect(result).toEqual(user);
+      expect(userService.findOneByEmail).toHaveBeenCalledWith(email);
+    });
+
+    it('Should return the result of service.compareHash', async () => {
+      const password = 'azerty';
+      const hash = 'azerty';
+
+      spyAuthServiceCompareHash.mockResolvedValue(true);
+      const result = await service.compareHash(password, hash);
+
+      expect(result).toBe(true);
+      expect(service.compareHash).toHaveBeenCalledWith(password, hash);
+    });
+
+    it('Should return the result of service.createToken if compareHash returns true', async () => {
+      const signedToken = 'aaa.bbb.ccc';
+      const uuid = 'myId';
+      const password = 'azerty';
+      const hash = 'azerty';
+
+      service.createToken = jest.fn().mockReturnValue(signedToken);
+
+      spyAuthServiceCompareHash.mockResolvedValue(true);
+      const passwordValid = await service.compareHash(password, hash);
+
+      const result = passwordValid ? service.createToken(uuid) : '';
+
+      expect(result).toBe(signedToken);
+      expect(service.createToken).toHaveBeenCalledWith(uuid);
+    });
+
+    it('Should not call service.createToken if compareHash returns false', async () => {
+      const signedToken = 'aaa.bbb.ccc';
+      const uuid = 'myId';
+      const password = 'azerty';
+      const hash = 'azerty';
+
+      service.createToken = jest.fn().mockReturnValue(signedToken);
+
+      spyAuthServiceCompareHash.mockResolvedValue(false);
+      const passwordValid = await service.compareHash(password, hash);
+
+      const result = passwordValid ? service.createToken(uuid) : '';
+
+      expect(service.createToken).not.toHaveBeenCalled();
     });
   });
 

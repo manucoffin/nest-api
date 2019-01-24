@@ -19,6 +19,19 @@ export class AuthService {
   private saltRounds = 10;
 
   /**
+   * Check that the password matches the hash
+   * @param password
+   * @param hash
+   * @returns {boolean}
+   */
+  public async compareHash(
+    password: string | undefined,
+    hash: string | undefined,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+
+  /**
    * Returns a signed JWT token
    * @param uuid
    * @returns {string} - signed token
@@ -38,7 +51,7 @@ export class AuthService {
    */
   public async signIn(email: string, password: string): Promise<string> {
     if (!email || !password) {
-      throw new BadRequestException('L\'email et le mot de passe sont requis.');
+      throw new BadRequestException("L'email et le mot de passe sont requis.");
     }
 
     const user = await this.userService.findOneByEmail(email);
@@ -61,19 +74,6 @@ export class AuthService {
     const newUser = user;
     newUser.password = await this.getHash(user.password);
     return this.userService.create(newUser);
-  }
-
-  /**
-   * Check that the password matches the hash
-   * @param password
-   * @param hash
-   * @returns {boolean}
-   */
-  protected async compareHash(
-    password: string | undefined,
-    hash: string | undefined,
-  ): Promise<boolean> {
-    return bcrypt.compare(password, hash);
   }
 
   /**

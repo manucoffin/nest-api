@@ -13,7 +13,7 @@ describe('Auth Controller', () => {
   });
 
   describe('register', () => {
-    it('should return the result of service.signUp', async () => {
+    it('Should return the result of service.signUp', async () => {
       const user = new User({
         avatar: new ArrayBuffer(0),
         category: UserCategory.Standard,
@@ -33,7 +33,7 @@ describe('Auth Controller', () => {
   });
 
   describe('login', () => {
-    it('should return the result of service.signIn', async () => {
+    it('Should return the result of service.signIn', async () => {
       const credentials = {
         email: 'georges.abidbol@mail.com',
         password: 'azerty',
