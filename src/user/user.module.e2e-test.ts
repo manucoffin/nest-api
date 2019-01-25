@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
 import { getConnection } from 'typeorm';
 import { setupDB } from '../../test/tools/setup.tools';
+import { UserCategory } from './enums/user-category.enum';
 import { UserModule } from './user.module';
 import { UserRepository } from './user.repository';
 
@@ -10,45 +11,61 @@ describe('UserController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    await setupDB();
+
     const moduleFixture = await Test.createTestingModule({
       imports: [UserModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
-
-    await setupDB();
   });
 
-  it('GET /user/:id', () => {
-    const userRepository = getConnection().getCustomRepository(UserRepository);
+  describe('/user/:id', () => {
+    describe('GET', () => {
+      it('Should return a user identified by its id', async () => {
+        const userRepository = getConnection().getCustomRepository(
+          UserRepository,
+        );
 
-    userRepository.save({ userId: 'kkjjk', email: 'fhjkehhej@mail.com' });
+        const savedUser = await userRepository.save({
+          firstName: 'Georges',
+          lastName: 'Abidbol',
+          mobilePhone: '0233234567',
+          email: 'georges.abidbol@mail.cod',
+          category: UserCategory.Standard,
+          password: 'azerty',
+          isAuthor: true,
+          avatar:
+            '/8j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMSEhUSExMWFhUXGBgYFxgXFx0WGBgYGBgXGxUa↵FxYYHSggGB0lHRgYITEhJSkrLi4uHR8zODMtNygtLisBCgoKDg0OGhAQGi0lHR0tLS0tLS0tLS0t↵LS0tLS0tLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS03N//AABEIALcBEwMBIgACEQED↵EQH/xAAcAAACAgMBAQAAAAAAAAAAAAAEBQMGAAIHAQj/xABAEAABAgQEBAQEBAQFAwUBAAABAhEA↵AyExBBJBUQVhcYEGIpGhEzKx8EJSwdEHYnLhFCOCovGSssIVFjNTkyT/xAAZAQADAQEBAAAAAAAA↵AAAAAAABAgMABAX/xAAkEQACAgICAgICAwAAAAAAAAAAAQIRITEDEkFRBBMygRQiI//aAAwDAQAC↵EQMRAD8A5dHseRmaO9ySIUzyaKQ/4UcyA8Ic+kH8GxDU++0ed8qm7R2fHbWGTY5ORRva+z0heMMu↵aQE/KKPo/Pc/2iw4rBmaKWLZjoBEMhCUfNdyAnRCRep7m1anUGOeGi02V+bwzZT9AS/p/eFmIw5S↵aiLvPIUAEkpJo5qojkNNOfMwrxXAlMVFKhu9VAaZrZX59niiZNr2V+RiSKGu28EkEhxUe47RFicL↵l5j71jSRNKS+gil2JVGswkR4gHSDytK7i+ov/eHHh/w8Zqkjct9P0hJOh1kTnClQMwC3zbObEcj7↵HqI8ThVGgB19rx3LhvguWU5FABL5W3LG8OeH+EMJLBTlCjUObhyf3iP2eyjVHz1wzhEycvKlJPbk↵D+ohhifCE+WfMgsSQ7cv3j6M4L4cw2HJyIF39h+0NMbwyVNTlWkEAg+kOpXok3TPkhOBWKFJFH7O↵0aJRH1FN8E4RVSirEdAST+sJ8Z/C7CrWkpdKU3A1LMI2RlNHz38I7co2VIIofsx9Dj+G2ETLZnLu↵T1v7RpI/hthQvOvzeYqa19D6xg90cDw3DJij8paj03tGT+HLp5TZ/c/tH0v/AOg4VKChMtIGtK0p↵eIMRwXDEBJQkChHrb3hHMKZ8yCSSWAJPIPq31jbEDL5Bp8x3Vy5Cw7nWO6f+zsMJk00+ZRAH5VBJ↵b1Bjmni3gQkqJZqeUA61+gHuIKlmgtYsqcmUVdI1xH5RVrxMuawISLXgVAc7P7CKE2yTBys6mpzq↵w9dIuXCOEpAclwzliC3U27lI6wmwGGlkC2l9+YNe9YdYDCSndN0scyT3rlcjWpGsYDC08PQqqZiD↵dhQNQs5lFWvKB8WlSSkfgVRRSc6He+uUh3FjypRtiJszKT8cKSbk5TQUqSagdbs+kLMPhznKgo+g↵QCdC4oa8zGwgKzQoyJD0LMoO4BDsz6MxireIlgkNFoxy1LKgwfexerUPKKpxxGVnLk+sJBZspJ4F↵KV72jZ2iExgXFaEJSYyI3jIHUNhRnxoqfAhXGueKOTZOkg2UsksKn79IccMSDQEE65f3ivKxJy5R↵QagUfrvE/DMWUr6wrWBlLJ0bB4clIyebKKJB8wJuecYrAmaHU0tNsxDru4ATr0vAPBsQt8oH7+9D↵Ful4ugCm2CVJSVHqQomvWkSSHkwDDYVEpLS0hS9VrPyblR0OrCu8B4rAKX87kixLAD+lALJFqkF+↵8WGUiWA6sktLuEgjzbAsd9H7wHi1KUAwTX8xSlIu1Eu59/pDCWU/H8LSE0Tm/mcv6EpD9E9zFVxm↵GMtWoBsDtzjomKXNAIBSN8rkN6ivXeKpjcN8Z8oOepyqupnfJ+Y0+W7WdjBQRHkYOnS4+sWrgXit↵MhKRlOYa828pgfhWCzoSRTMHQo2SpJIWhepTS+mZJ5FqPDoIPlZRACg1UtbooNX/AFCtBAlT2Mr8↵Do/xDmLmFIlqBS0w82OnJi/YxZfD/HJ02atwQxyt0Ki/oxiv8K4MP8tZHmSFoVRqEFFhzdh/VpFo↵8P8ADVSlOdQ9v5CK7kkPHPJx8FldFt4diSUpJuRDOVinhJJVkSOX7/3jWXjfmL2b79jEu1GcOw7/↵AMYLfdLxOjFAxSUcSJKr+UH3yvXW8ESeLeZIe9b3FGP19IK5GB8KZZpuOAISd2/aBsRjqlL1DfpF↵exfEnUlTu7U2NW+nvEE3HedddvfLG7t7MuNIL4txZSR5TfMD6/tWKPxDxViSlORJorLsKkN0BK0x↵asUjMHeor1o2XpX2ivzeHDIUl6kB+SkhLeiQesGNeRmn4Knj/H+I+JNKUuMyUpu6icwFvzeYtyaE↵PGvEE7FKUgoDpUqoejliCdhvFoxXDwZiKOVTArkAhCys8wQsjqREGE4IUICKE0KrHPNXVuaUuX3Z↵nuI6V1IS7FRxGFYMNnrTRya6XiXhGDUqyUm9SAWbqaDm0Wr/ANEBGqkBgSKrmzC5ZBLBQA/FQUJN↵JYBgxnCZpOSWg5gQAlD5ARS5AKiNzuKDMHYDZDK4eUjMlYVuKFuqRlKtWIaCnWAMmUtbP5BR3H4Q↵D3EKwVKWQlSlFNCoeZBZwoFgxHMfW2TEpNJZQVXOSYVjszN6NttBAWLCT1kZVJmG7AETkkEaKSyk↵jkSoVgWZgwHVKev4QXUmtRWu30rCUcSyBlB6uSAAbXsx7+oguTxUlWYLUx0JzAHmDQF6g20hdhqj↵ebxAhNajR6n1vFU4pOzK+vWG3GOIhTqVlMytEUCjoVD9or00nW8ZBZAuNIkVEZh0KzyMjx4yGAaN↵GZYmCYkEuNYtAwRG6UQSJceFEDsHqPOG4pY/EQ2rl/QVVDkYtxmUpbH81CrbKhJBI0qpjFcw0woZ↵Q/L9KawRJ4kXJdlaqursfwjpXnEyjLEmcsmoZVTkBAUlGjsMqKUehG5g/C8EWsZ6ga/CJD6OZo8z↵1+XnS8a+FZYnZAXDlkqQQQS1CLjNukh46HwzhHw2Unyq3QMqSNiHdP022jNi6Kajw3MopKyALKAd↵hrmOYhadyWNRWGy/CAmFJH+VPToPMhTaKSfmSbbpNizA3MIQsPlKVCimoUq3Gz+4Jj1dL/MlrMMw↵NnAbmO3OEchkU7/24APOGc+cOHCm+YGj6g08wzOHBMHSsACrzAMoFJY2IFRW4eo5HcF3U/EBQcVp↵vRQNj1Z6jWB1LBCfQ9HcW6uPaJylY8UQ4LDhKMvXNuQD+/sTDNDP0oB1JV9H9IRz8blBL/b1H1gW↵bxg5ho5b3ZP6RLZasDjiWPypIBrX2cn76whwfFLgmhIB1NHJhVxLiijm5OCLPfLXRyQ8I08Q+Goq↵JoQSCB+EXIf+YkdqwFFtj2ki24jHZUrVXzUFfys79f1jyRi8wQBonK4vt2vFfnzFfKpVC/oFD3IC↵oKwGKyuugyqHMEqFG1ozwziKmNcNjXlpBoXr2D07GnaB5eMInAAuFN2LkNao8p7wml41prg+V0U/↵0pduxJ7c4Ex+MZYylyCrqxNQ2lXLfvB6WDtk6LJnZk0tT2cfr7CNMUmlBsOrEMW+9YrPDuMMrKq6↵iASaXS/umr/vDY8QzVe49DmU/uIWqDZIjABJJAegQOgBfpR+rRFM4SFEAn/LTmUvdZB8w6UD1/FE↵ycSWJF/L6MRboPpBK2YS9KAgalhR3tp3O8PFk5G2Hw7ozkMpVgxZKDVgAQz3cEPfpGngoWnI6koU↵llfnWBo4YIDn5QwAaxIAZS2UoE1uW0qzdgx994IxEyuStnLXAJZI6qU+1tLxVNkWU/i/AkCWoUCE↵AD4aPLLzGwmLAzK5hibZUhw9E4jhwxIBUnTInJL6gOSofzLV3JeOsYzhSZqgqcAqWk/5cpI+ctqH↵AINaG7PQEvDiuABZzTUhDCkpCgSAwcrWAAk6Mlk9WBDpinF0SS7KpyNbe0ezJwFRUEEU53i1eImS↵opky0JluxWQ2Y6BLjMr6chFHxKspOVVHaz96QdhTwSYpSSUgAAa9qwFMU8bJvUuQCT3EQrhmjI1V↵GhjcxEqCgM8jIx4yHAEJESiIQY3CokMiYR4rtGgMeKVACTlTpe7fQxFJI5sY1lzGL35RFLmkKbcw↵yQrZ0PwWv4VUuZZIz0oPyqIBp/UKdKiOv8PxhIcioooaHUEbj945h4GQWCgyD/1IUNQptNHooc4v↵8tklLAo0yuFDllVql9KRKUhuo1mK82cbeYXCk7HfcHtA6pmVquB/2mo9/pEasSHpQi421tAWNxdX↵39Nf+REnIpGB7ipjZjzb3LfWF8+e3ZvUx7jpo12rzDf2EK8Xi8yXBt824tU8qX5xN2XjGiXETPxX↵Ad+o/csRCpE8KmIGvxEnejh7c/0jJeLJKkXCq9xYDr5gOeWFsnFZZyAVB86NqpKkkqc2dJEMkCTp↵MjM8k1BNRbe47ksT0AhJjELzJmgMkMobBKTSna2rRMrEGYptuznNlTb+snt6bcRmpKVSgSSlASTY↵EmqW5MT2HraKyTbwGK4j8VJIHlY0GjZNubDm4iSdif8AKPMZzV6oLC1w6rwhwKz8EsNUp7g1YXZi↵CRuxpSCviuFEggLfJoojVhdspUW1I3jdcg7YD8UpiV1OZILblswZv6EiFuJmKJlzQ3mSa6ZkEu/U↵0grFp/ywlVCUa7hwC+2UJ9OcDcAUFyghQBLkCo1FOjecnkSdIKWLA2OsOoTGU9wOYsBQ6EBx6w3l↵miQSCdW/mdZ/7vaKvgJqkqQAaKZQA0csQTTaHyF5poO4RpZSUJ06PaJyQ6eRxgprDMTWw7panINf↵cc4KkTSz9uhcfpCmZMZaUj8Lt1LZgfYdngqXNsTf8ou9WfZm/WFaCWLDrYeg7VgzDrcuo3P+0OPp↵+sIsNirANU9bav6w0lYjctr+0GLJyiOZcwZnIr0sKE9AwFOQ3hbxdKpoKBVKrgatqeQ1PShtGJm0↵uOWtBqR79W0j1MxgoOWN6grUdAGoKaCgdzq9EyLVFQ49wyVLQtU1bABirr+FN8oowAcm5d6cz4pM↵lJDy5YSkWeqjzJUTflSOh+NGSCtaBNVUS0H/AOKWNSR+M7qVR6co5LxDFFanXU7j9tBypFIZA3SP↵ErDHclz+kakRtLQGEb5IZjLRAYiVEsyIVQyFZq8ZHjRkMKER6DHkZEyhtmjCY0jeQHUOvsKmDRjF↵0LbRqcMpR8oKugeCMNhFL0O9ouHgvgUxU0Ky01BBELKagFcbkWb+F+EmIQ61diNNi9/r1i+YggAi↵z15deXSPcNIQlIAyvsxY05iFPFscU0BZqsajo5sI5JTt2dEeOsGmMxmU1aliTT1uO/KFU7HM4JzA↵23fakBTeIFbAO9aJdTjmwgLFKoajLYvmoemV0wEmymEFTsersPuh5e/NmK84tSFOKZul7HqG3/tE↵EyewoSQ2wbm+anqx9ar5mOSo0SRyKqHdvK78rw6iK5DJE3KFFIYgVTqA7uk7CvMcxWEnE8cJgJDJ↵Wkigp5VEB09FG2ytkxtOxiS7KUhQsq4GzqSH9vSEHx3Ux6U+riLRiQlLwNsGskk1qcw2cZlN7RmM↵nJTLBKiCovvRIypCuz7O4gKTNAzAvQFgNST/AM+0Q4mYVKYs3N2AdhzAr7wVHIJPAw4Ph84ClFw5↵CU/mNMxL2Ae9Pw2DmLVLwCjKmTSwOZCJYb5c5SCAOeeppUqs8Lv4f8KVPdZHlH+WipA0zKb0bqTp↵F6xUjKJI0VMSSA5YhUxZTf8AlRWnuIdRySlLwUrxHgyJBJLlMuU4oCFHKynejur25wk4cVfDCqUU↵zijZgTUcwotyjoHiPBkSZ12EtFAAVHIzgO4JICqF9ebUaTMCc35VoJDjZYd+iVKNXIBbWA0GMj2c↵vKtAYAhyf+oqHf5RDLgmMICpqjVTqD2DUBFd69EKG0VzHEmr2Z+pDjqaE9HiLh+KImJdJmaBO92H↵T+/WFSwO3kt68blCV3UQGD2H5jzNG6vtHuHxa3AJc5h3PmvsA9+RaFk7EhJdas6iXOUhh1U1+QEe↵4fiSQQQlT2bMGetT5dB35QjiVUi3DFhAcVcgVewHIfdYOk4zMwJuNHq1ABsIrEjEJV5golQaqmyj↵fLp3PKCBjwi6So6u7F+bt6esTcRrRbBjqeWw12Nbb/fc3CzwwrTo551LPW51ino4gTsOQP8Ay0Mc↵FjgSHc8gpv3P0/bLAjjZ74yRLEtyhaltQAFSuwAAHUtS1KHi3E8OpKiVJKXsDdutB6R9DYXKUEBN↵9gSx7VJ7vFC8Z+HEkFUmSxfzKyHN6rJP+6K8fJRGUbOdYceURtMUI2lyyklJFfvr9YGnKitZMngj↵mKiEmNlRoRDomz2MjIyMAkzR6DGseQKHJGgvAYQqVSvlV/2kfrAaX0h94Wb4tSRQ0ehhZYQVllj8↵N+G1HK5I3GsdX4ZgkykCncn94T8JmpCQQGMHYjGKId1ewH0jhlJtnclSDsZixlbMltgG99YoXiHF↵ZQSRbm3fePeOcYKSdtgeXN4pXFsQqYbFuZLD1MNCDbBKXVE6cWsqIdwdBlT6sa+8Hy55IYKzcgCs↵A83DAwiweDpmNSN3I/YQ4TJUUZgpmKczUZLh7WFY6Glo51J5ZKcx0tu99dQfeB52Dq4DgVY68hv6↵EdIdjw/MTULNRQ0JBLWUQ40qIV8Uwq5bfEEyYpRyoynKAtQZJJIsDXnDLiZP74irEYNPzJF6M58p↵73H3SFGLkHM7DXQC29KxeT4RxbGZLByqq3z05+UP6RVeKYSZJOSYjKXodn09ft4NNG7RlpiWSplO↵ajaz08vuz8oacEwiFkrmpKkize9BUlyEhtVCApqADr/N7QRw/EMUpzEOrKnXKm6mFiTmKR1Va8Oh↵JHZPBHDCmQMuUZyzCzlLkvZmdI5DvFlxnAE/CIRRs4BIcjyywFDr8N/9UHeEMNLOGkqSxCUJAO+V↵wC/MfWH5laffWCTOfce4elMoghTPMABZm+Jlaml/+qOS8UkgImS0AZEglO/lUQptGOXf8DbR2/8A↵iAnJhmFXL+ikN6Av25x8+z+JLExAWMtAJgrr5ZlLXSVBtSeYgUMhYZilECp/arP2PpBGBl+ZyqrE↵BNbdr9CR3gFKCFMTYt6bQfgWNHNNGdz9+/SAyiDxLpc1q+qty+zmJ0SSLAKa90h+uvR+0SSJKz51↵p+Gl3KiFGgv5UpOYtbS/KDuE4b/FIBQVlwC5QEgGygFZzmD0+WB0bD9iRHLmKQ5LJ9h6gAHSgLxE↵cZViytAApTACzXMPE+EpqRyFxQv6j6QhXh8ocOalnSCGB8pymlg7/SFcaMp9tEKsUHcb6OT0s7+k↵WLg2JCh5fNoxYHu5c6+kVUIJdzR9EkntqI9k4pUpTBTci7nq4gSjehlKjrXDlqUABbZwo9yf3gqa↵hixTTdgIonB/EINCa2D06UZhD2VxBSg7rpYZrfQCINUx2Q8c4LJWCRLCVCr5K/RyI57xjgZSeW7N↵HSl8Ra6y1qpV6Ewp40M6DlTm55ikxWDaJyo5kZaUuDeAV3hxxCX5j5SOqiYWTRF0SZE0ZGzRkEBr↵GCMjIw5JKvdovXgpMrOHUCW3epDWiiyZoBqHi9eDsaMwyyw73aJ8mhobOqSpvlpQN+Fkwrxs0qcO↵1NXMEqQsJ17UPrC6fiSHADc82Y844aOuyqcYSClw1CxumtW0OkV74daZqapLjoc0WmfJSoqzEeao↵NiClyD0Zx3isYlRRM0cHYKG92ppyi/GJMIlLJooL5EhxyqLwwwGJAISQFJNCwIFeZ5GApGJJJ8xU↵LqZAHc5lVPoY3+EPmT5QqoDVexGUK05PpvFKwSTpl44Rj8mSWtmshZYBQoAFHRQp16xa5cqTMAEx↵ILFwCAwI6/WOU4DipCQlfymjkUPQAdIf4bi5SWTNIejO/so84pHmpVIhyfHbfaD/AEdGmY1MoMGZ↵rMTQXsKUMcy8d45OJypSA4L0YkOCznSrUHOse8T4opY86ysgVcMNGAYBzuWpSK2rioJUhSdmIDuq↵j9v7xnyrUUGHx2nc2Vif5lEBJcFiG1FGH3pDbw9hPiTpagl8n4easyQvUliNWY5QKAkycHlZ5/m1↵WQlxRyWIVr8uYg/y6x0Lwv4ZUFfEly8iS4rQEhTtzZ2pRwW0co09nQfBOCVKkZFWKiUnkTQB7gAD↵TubxZm3hPw+aoU09Ord/vcr/ABRjdhVFlR/iItwE+WygCTXzFD01t93HB/EuEKVtVQS6S9bFgXNQ↵KNX8sfRfiHhaZ6C6fMaV1D2OjcjHHfHvh6YiYPISSSpSq+ZALs4cmrGtfKo7wU7BopGAkCY4HzM4↵G9dveOnfw94NhgCqYErnJUQRdJY3GtmPcbxQOGtJnKyuFMeWXQtmrW1qbmLBKxyAoKQopUlnIo3p↵3gd1F5RSXE5xwzsk7BSZiMuROVrMB7btC7g3h/D4ZAQgBkhq3ub0qaXip4LxTMSkE5Va5ql+ZyqA↵9oH4j4gmLB8wQCPw+X/cSeWsN9kEtkFw8r9DjxRxpKQqTJrNUGJDNLBoSSbKLsBpcxzXiOJDhIdK↵RT0tRmtzg7GY+mRAFTpRxuSa96tCibJY5ynJWnmymjEKSQz9axP8nbLqKgqQTKHkdIS2pJWWpqwZ↵vWA5yZdnqC1C4OtM30gmekNn+KgqayyQt+yQ57fvA8qdnNfMe59SR9YLCTyJYBBDjark/wC2LRgs↵UMrMC1yCFHpFeyuAQlmP8oH32hxgpxAZz0ICh/Y9I55bKIafF/LX77w0lYIzEVFW1MC8HlBRoE9W↵b2eLThkMNO0NBCSZy7jvh05iXbtSKljMBk1jr/iGUSC0cy41h1OaPFkxStlMZBBQdoyGBQEDHsax↵7BMTyEh6kR0DwVKRmDLeOfYSW6gGeOv+A+GsAcrROZSCLp8BOUCloR8Uw7Asw++UWhUqlLwlx6VF↵wXIjjkdCKfipKhUKDitA7Qi4ph0rAJdIcspvlP5FBNSnUXIBo7ERaMThmL/394RY+WQ/l8p+YEs4↵6/hOx/QkFoOjTVorU8GT5VJFapOYVGhSoUI9RB2ExiC4WGzN8qnAVZwMtaXHo7CMTK+GDlJmST8y↵SQQFH82WqFc0mu5ZolwvC0qBKHUP/qWsXamVdEKvqEq0bWOk5wl1PlIKdy6VFhUFJGhBHKJ82WWM↵qaK1LAsKkn1FA7tEMlCyTKVLLAVH4kAsaZqNY5SejO8Tr4RMWXSwS9w3QGiQQeTD9SroZIDE4HNW↵haurbttW0ZNIZKEjVq+z77w/k8B0qWD0YC9XdyTzJ2hzwbwqtdZaTmF7EdlFTg3q391WWM8bF3hD↵g+cplKXUEU8wJFFqGUigtUB6JLjTsEjDoloEsOyRqQ/dt6+8IvDHh7/C5lzFJKiXSnKCpOhYi9zo↵9TWPUcTCVErDEWJBqmpSQ96frFnKkRjDs8D9BAJpeNlAXEKJfF0kOKx7L4oDpE+6Oj+NIYLmB2MV↵vxnhM0szAxCaGuUgjmSw02ttBmJ4mlVNj6DrBHDp4nJIzeU2UQznker+t4pBpnPy8bifNvGsIqVO↵dkpBoyS6XYatrejiJ5ayC73u1LWI0IaOieMPDLTPOFCyklg5CTqCTudxzilTOFKJHlap8oBFQXLJ↵vlqWIejWq2kgQZ5IxWR0g1frQvY6G1o8RjSqjlL66U5hvt4GnYRQr5SDswN2qkVDttWu8aJUQwKh↵yB70Lt2rvCpIdyYXMwJzEDIVAfmA6sALUNDyiCbOWAEkVGrjzci5relKesZMUnzApBzM2ZTseRLE↵N3+keLUEoKVAVZqL7WVX0hhSDDZqmgHcEHslgekEonIeqjXdWY+j0jROFUfw5ds3lPoS/pDDCYHM↵STmILVBKUnsoknsIWTCg3h8vyuKi/wCGv/lDWQgqYkN97AwPw+WE0S1NDU9xaLBgsOpbFgP6W/eI↵sYM4dJDfKTzt7w2Sphb9Yjw0nKKn79YnJaKwWCUnkFnyAoF4pfHOEgEmLyuZFf42lwY2htnNZ2Eq↵axkNpyA5jIewFAQI9aPJV4lkIctDsGw/gWGKpgju3hmWEIHSOaeFeFMxjp/CgzCOWU7dHTGFKywJ↵a5gLiKQdKQxSzViJaX0ftCNGspvEZZDsIr+Lw6lpOYsNrB+94vfF8Emu/wCXbuBUxVcbh/MU5v8A↵pTUb3Zu8BRY1poo+Nw6pZzIJBDjdwbgpsQdjSJMKUKqpKpavzJ+XuknydQegiyzeGS1/KpVqj4ZU↵B3STC4eGcyj/AP0SwBfMFyz2zS2PrFo2TdWM+Hyl5coWhSWDDzLJ/pDpWP8ATfV4ZSglJZCChZqE↵rzZTSzEgc2WkC14E4fwkAN8bDhGpE6WQX1UElLk7H1MWjh4lpDAIYMzKQvYUAYCuxrWA7Bsk4Xwt↵a1J+JKD/AJcqSA1Q1in1a9bCLnhMCUsyUigHPsdPWBsDNGR8gFbN7unk1oYLKmBfsYpCPklOXgxU↵n7r9LQo4zwWXiEGXNTmFtHO8NFziWanX/kRocQKi5F2ijimLGTTtHN5vh1WCmPKWv4ZFUEunkUg/↵Ken7RoFTVpUlCikmxAchzVgaPF34jiEEHMB0v3hV4cXKUFFID5lVpoo6xzuH9j1+P5H+TbQLwfwY↵lCkqXNnLLH5lqIL6EC8XXD4XKQ1AAzCnpEMmckUy97v+sEKng0B9D0i8YpHl8vJKbyR8QwiJo+Gt↵GYHVg42v3rFB8SeHyglKSct2ag7lJBPQ6x0A4kj9712vG5KVBlgF/t+UFqySdHFpqJSCUKV8NTuz↵p0D2QM1tTAeJ4cliUqmTX/KkpI2JVXNp9aR0bxhwuUgZvMDqUkAsd1XHcxQ/8CkOBMPWYXL1tYpB↵e7+toR4Kp2JZUoEqDJIarTAvLRiVJBY3J+XlAGKmIdviLDD8IKEq0bMGp1S0G8SQsK84rVlAuTW5↵LJI7wuOHWs+Yn0v3SfrA7Bo8wiB+FITW5OamlVeXuADDmUlTVZZ7hRGjj8VuZj3C4EpDglt2cdD9↵+sMJKSm2UjUAAxKUrGSJcDLUphc8zUd7mLXwzBFmB/vCjhcoqbKl+tx0N4skuWR8wHehjRyLPBIZ↵ZFwO4iLEzGFo382no8RTydQY6qwQvIDNxMLMeCpJg3EK2EBzJgap/X6RIqinYiX5jf0j2G81Mtz5↵feMgmOQCH3AcAZyhQg7gUPWIuD8DXNIpSOp+GPD4lgUhOXkSwivFx27DfD3B8qRFolYQi0RyZeUW↵jeYsxBHRK9IZSGIp0jckDWvqewhRh5hJZ2EFTAG+aKbINAvEUpNq9TT0EVjGmYksLbEAj/cC3tFu↵Ev8AKnvAOLwKlEk/2hGn4CpeyozcyvmShQ55v0UPaA8TOAqJUqlvKVe0xRHqIs8/ht2y+kIMbhCC↵WqeQA+kFSNgzhGMVRyyR+GWESg53CBX0i4YCZLUQl0gi7ebmzlye2xpeKZJwKyyplEigUtTAbgEu↵55JCjyiwcKWh/KfJLLqWSAmlWDvQU8x3FAzQ6VitnQMPNATlSAKPZnjZEwqYmm/XX/mEOB42lYBF↵BTVmB+W9XILtUtU/NDEz3S75RTqxIb3r0joRzs3xGJSCVCp0r9R1hTjeKZiEoAKmfoNztC3jfElf↵LKGZStRbqR3jfhvDSlIFSVHzqs5pm6BoDKQpK2Ty8EVl1qB5WH9+8TYnhYDGWAhW4p7WiVOCLHzW↵rvHic75dtX6f8wOp0LnwDSuILlnLMDh/mBb12+kO5GMSoAjVttrNaFkzDOSCd36gOXhVi5qsMQsf↵/GSMwp5SbGuht/zDIhNxlotwV5hV/v37xOSm3OnM8oScNxwXUF37aH1sfeCpmLFHFD+1/cUMMQJe↵LSZcxA+IQkCoU7NuS9rRzXiww6CyVIzGozpBdWimKEA7MCTF34nxGXUGqtWoobFJuDT2ii8W4cVH↵yh0q83loo2c5Q+bmQFgiri8KxoiuYuWS5w8s286M6NKOhCkt0JhlhDJJDBaCafMCktbyKS57KMDS↵cKEs4B/nl+Ugc0VDcw4g/wDwz1LZbvp3/cRJsojxEuXZ5iTylJZ//wBTBErhadFeqWHoCqC5GHXZ↵swa9z3GsGS0EfhBI5MYnsN0R4bDZLFL9WP6PBSSQaktsf2MbSxukeje4jCdGLeoisIkpSJ8O28R4↵tyLRNhZO1InxK8oqRF3omVadKLmkBBD6Q2xc1NawEgPHNIvEUTMIXMZDVUoxkawnnAOBBCRSLRhc↵M0ZIAFPvnEwmxy7dndrBItMCT1gaxvPmwqxCyYazBCcSkGDJClrsGG8JwkCp94bYPFEhrCHRGSCD↵MUmjx7ORmF40mBJDCNUSSLlh9/f7Q9EWzU4Eq+6QOvBAfKK7kP6JsO7w6lTUkNEU5KQKlh9eQha9↵Gv2VbFcHMw5lKp+ZVWAqw3tRI9oExSM5TJSkhAICUA3I/EtWqiegBNG1tUxBUCW07JGnc39NoXqw↵fzKa4Yd79mB9YdKhWxAVqcJSxCTQgUUokZlAaCgA/lSPzGGypqzMUl6ABJ5qGUAv1A+zGsrBstJI↵/EPqHjSdMIUoNv6u49SBFUI2GSpaUkBmO+u33yh7LnAIejsAH3Uz/UCKmMbUK7H0v3p9mJJ/FPlO↵gKX/ANd/9qT7QbAXMLTlp1tsf7QJIIzEbH6n3sYUyMY6QXun6hy/3rECeLAqNbildS5+n1ggLJiW↵Cq2Ib1ofo8LOIS0nMk6i24Jc+7QDjeJZqahnHIX+h9YGxWOzMXfzB+Yb6HTtvGMRoHwgyLDMQOdf↵ck32EbTPEZA+VwwUwFSPxAHcJdQ5tA68S5UkD7FD+h9d4gRJKi9t+b+V+tWggBJ+LSpZSokyztdB↵IBC5ZDFjelw2oj2QFyyUAgoNSgh5arELSB8hNC6W3DaGSeEFQBb5adn/AEP1G0NsHwpk10qk7HUH↵kb8jXd5tsdEeHwSZjXJv5iPiDmmZ+Mf1VsH1g2VgQkFBqOjEcynTnp3glJSliEtvyIu37RkyaV0I↵6EUI/pULfSFoNgE3h+WqFFKrhvlVE8pavxj1qIKSGoqovao5sLjmO4gTGFg6TQ2q78xBURXI3n4s↵WIrpEMp4GlkmkMMNKMViibZNJB1EDcSmpZi/7fe0GzMUlIrCLFz0qNIMng0UATh96NygrBo5R5KQ↵lXl9OR/Yw8wODZNREUrZW6QD8IbCMhkZIjIp1QtgsouOtPSp/SCZcqkZGRwpHptgmKgEpcxkZGMe↵TG1gvhsvMdhGRkNHZLkHXwkAeUOecA4gEOVGkZGRU5mCy8RsWHvSp9hE0qcFHVhvU/ZN4yMjIDCR↵NBDafXmYITLCma31cCMjIdCvRDi8KL63H6Qnx2GcqO5J7GsexkUYgun4Zq+vUwJiZXlA5kn0Dfr6↵xkZCsKPErUzPAqpRCn9P0jIyAEnSkmp0v0guTIcA7Gv/AIn6+gjIyGQLNpmHYFYvT1Bb9IYYfKU0↵/EHHLl97RkZDAJpE0glr7fe4jWTxQpJSRZ48jIVmC8Li0q6t6gb8wIkXi8tGjIyDRgHETyqoJb3B↵jyTMeitdf1IGvMVveMjIKFJlYYhzsWO4P69fpEslShYxkZDIxpiQSKwv+ELxkZE5jQDMBhnLtD5C↵KRkZBjoMiMyoyMjIcQ//2Q==',
+        });
 
-    return request(app.getHttpServer())
-      .get('/user/fefe')
-      .expect(200)
-      .then(async () => {
-        const result = await getConnection()
-          .getCustomRepository(UserRepository)
-          .find();
-        global.console.log(result);
+        return request(app.getHttpServer())
+          .get(`/user/${savedUser.id}`)
+          .expect(200)
+          .then(async () => {
+            const result = await getConnection()
+              .getCustomRepository(UserRepository)
+              .findOne(savedUser.id);
+            global.console.log(result);
+          });
       });
+    });
   });
 
-  it('POST /user', () => {
-    // const userRepository = getConnection().getCustomRepository(UserRepository);
-    //
-    // userRepository.save({ userId: 'kkjjk', email: 'fhjkehhej@mail.com' });
-
-    return request(app.getHttpServer())
-      .post('/user')
-      .expect(200)
-      .then(async () => {
-        const result = await getConnection()
-          .getCustomRepository(UserRepository)
-          .save({ userId: 'kkjjk', email: 'fhjkehhej@mail.com' });
-        global.console.log(result);
-      });
-  });
+  // it('GET /user/:id', () => {
+  //   const userRepository = getConnection().getCustomRepository(UserRepository);
+  //
+  //   userRepository.save({ userId: 'kkjjk', email: 'fhjkehhej@mail.com' });
+  //
+  //   return request(app.getHttpServer())
+  //     .get('/user/fefe')
+  //     .expect(200)
+  //     .then(async () => {
+  //       const result = await getConnection()
+  //         .getCustomRepository(UserRepository)
+  //         .find();
+  //       global.console.log(result);
+  //     });
+  // });
 });

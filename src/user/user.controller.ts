@@ -13,6 +13,8 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
@@ -39,13 +41,11 @@ export class UserController {
   }
 
   @Get(':id')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Utilisateur trouvé et retourné',
+  @ApiOkResponse({
+    description: 'Utilisateur trouvé et retourné.',
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'User non trouvé :/',
+  @ApiNotFoundResponse({
+    description: 'Utilisateur non trouvé.',
   })
   async getById(@Param('id') id: string) {
     return this.userService.findOneById(id);

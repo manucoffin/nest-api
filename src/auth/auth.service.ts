@@ -51,7 +51,7 @@ export class AuthService {
    */
   public async signIn(email: string, password: string): Promise<string> {
     if (!email || !password) {
-      throw new BadRequestException("L'email et le mot de passe sont requis.");
+      throw new BadRequestException('L\'email et le mot de passe sont requis.');
     }
 
     const user = await this.userService.findOneByEmail(email);
@@ -77,21 +77,21 @@ export class AuthService {
   }
 
   /**
+   * Check that the token is valid
+   * @param payload -
+   * @returns {boolean} - true if the token is valid
+   */
+  public async validateToken(payload: IJwtPayload): Promise<boolean> {
+    const user = await this.userService.findOneById(payload.uuid);
+    return !!user;
+  }
+
+  /**
    * Returns a hashed string
    * @param password
    * @returns Hashed string
    */
   protected async getHash(password: string | undefined): Promise<string> {
     return bcrypt.hash(password, this.saltRounds);
-  }
-
-  /**
-   * Check that the token is valid
-   * @param payload -
-   * @returns {boolean} - true if the token is valid
-   */
-  protected async validateToken(payload: IJwtPayload): Promise<boolean> {
-    const user = await this.userService.findOneById(payload.uuid);
-    return !!user;
   }
 }

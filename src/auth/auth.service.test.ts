@@ -99,29 +99,19 @@ describe('AuthService', () => {
     });
   });
 
-  // describe('signUp', () => {
-  //   it('should call and return repository.create with a user passed in param', async () => {
-  //     const user = { password: 'abitbol' };
-  //     repository.save = jest.fn().mockResolvedValue(user);
-  //
-  //     const result = await service.create(user as any);
-  //
-  //     expect(result).toBe(user);
-  //     expect(repository.save).toHaveBeenCalledWith(user);
-  //   });
-  // });
+  describe('compareHash', () => {
+    it('Should call and return repository.findOneByToken with token passed in param', async () => {});
+  });
 
-  describe('validateUser', () => {
-    it('Should call and return repository.findOneByToken with token passed in param', async () => {
-      const token = 'monToken';
-      const user = { name: 'toto' };
-      // repository.findOneByToken = jest.fn().mockResolvedValue(user);
-      //
-      // const result = await service.findOneByToken(token);
-      //
-      // expect(result).toBe(user);
-      // expect(repository.findOneByToken).toHaveBeenCalledWith(token);
-      expect(1).toBe(1);
-    });
+  describe('signUp', () => {
+    it('Should call and return repository.findOneByToken with token passed in param', async () => {});
+  });
+
+  describe('getHash', () => {
+    it('Should call and return repository.findOneByToken with token passed in param', async () => {});
+  });
+
+  describe('validateToken', () => {
+    it('Should call and return repository.findOneByToken with token passed in param', async () => {});
   });
 });

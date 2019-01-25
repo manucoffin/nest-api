@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 import { createConnection, getConnection } from 'typeorm';
 
 const ROOT_PATH = path.join(__dirname, '..', '..');

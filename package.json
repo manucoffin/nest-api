@@ -14,7 +14,7 @@
     "start:prod": "node dist/index.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "yarn jest-run --testRegex='/(src)/.*\\.test\\.(ts|js)$'",
-    "e2e": "yarn jest-run --w --testRegex='/src/.*\\.e2e-test\\.(ts|js)$'",
+    "e2e": "yarn jest-run --testRegex='/src/.*\\.e2e-test\\.(ts|js)$'",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
