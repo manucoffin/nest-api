@@ -1,7 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
+import { setupDB } from './tools/setup.tools';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -13,6 +14,8 @@ describe('AppController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    await setupDB();
   });
 
   it('/ (GET)', () => {

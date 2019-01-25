@@ -1,4 +1,3 @@
-import { error } from 'util';
 import { UserRepository } from './user.repository';
 import { UserService } from './user.service';
 
@@ -11,16 +10,28 @@ describe('UserService', () => {
     service = new UserService(repository);
   });
 
-  describe('getById', () => {
+  describe('findOneById', () => {
     it('should call and return repository.findOne with id passed in param', async () => {
       const id = 'monId';
       const user = { name: 'toto' };
       repository.findOne = jest.fn().mockResolvedValue(user);
 
-      const result = await service.getById(id);
+      const result = await service.findOneById(id);
 
       expect(result).toBe(user);
       expect(repository.findOne).toHaveBeenCalledWith(id);
+    });
+  });
+
+  describe('create', () => {
+    it('should call and return repository.create with a user passed in param', async () => {
+      const user = { password: 'abitbol' };
+      repository.save = jest.fn().mockResolvedValue(user);
+
+      const result = await service.create(user as any);
+
+      expect(result).toBe(user);
+      expect(repository.save).toHaveBeenCalledWith(user);
     });
   });
 
@@ -35,18 +46,6 @@ describe('UserService', () => {
 
       expect(result).toBe(user);
       expect(repository.find).toHaveBeenCalledWith(options);
-    });
-  });
-
-  describe('create', () => {
-    it('should call and return repository.create with a user passed in param', async () => {
-      const user = { password: 'abitbol' };
-      repository.save = jest.fn().mockResolvedValue(user);
-
-      const result = await service.create(user as any);
-
-      expect(result).toBe(user);
-      expect(repository.save).toHaveBeenCalledWith(user);
     });
   });
 

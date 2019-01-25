@@ -11,11 +11,15 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
+import { RegisterDto } from '../auth/dto/register.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from './entity/user.entity';
 import { ValidateEmailPipe } from './pipes/validate-email.pipe';
 import { UserService } from './user.service';
@@ -25,41 +29,25 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  @ApiCreatedResponse({
-    description: 'Utilisateur inséré en base.',
-  })
-  @ApiBadRequestResponse({
-    description: 'Requête mal formée.',
-  })
-  @UsePipes(ValidateEmailPipe)
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    // Create new user from dto
-    const user = new User(createUserDto);
-    // Pass the user entity to the service
-    return this.userService.create(user);
-  }
-
   @Get('all')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Liste des utilisateurs retournée.',
   })
-  @UseGuards(AuthGuard('bearer'))
+  @UseGuards(new JwtAuthGuard())
+  @ApiBearerAuth()
   findAll() {
     return [];
   }
 
   @Get(':id')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Utilisateur trouvé et retourné',
+  @ApiOkResponse({
+    description: 'Utilisateur trouvé et retourné.',
   })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'User non trouvé :/',
+  @ApiNotFoundResponse({
+    description: 'Utilisateur non trouvé.',
   })
   async getById(@Param('id') id: string) {
-    return this.userService.getById(id);
+    return this.userService.findOneById(id);
   }
 }

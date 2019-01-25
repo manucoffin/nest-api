@@ -8,6 +8,9 @@ type EnvType =
   | 'DB_HOST'
   | 'DB_USER'
   | 'DB_PWD'
+  | 'DB_PWD'
+  | 'JWT_SECRET'
+  | 'JWT_EXPIRES_IN'
   | 'PORT';
 
 @Injectable()
