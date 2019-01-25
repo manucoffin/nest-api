@@ -42,6 +42,15 @@ export class AuthService {
   }
 
   /**
+   * Returns a hashed string
+   * @param password
+   * @returns Hashed string
+   */
+  public async getHash(password: string | undefined): Promise<string> {
+    return bcrypt.hash(password, this.saltRounds);
+  }
+
+  /**
    * Returns a token if the credentials are correct
    * @param email
    * @param password
@@ -51,7 +60,7 @@ export class AuthService {
    */
   public async signIn(email: string, password: string): Promise<string> {
     if (!email || !password) {
-      throw new BadRequestException('L\'email et le mot de passe sont requis.');
+      throw new BadRequestException("L'email et le mot de passe sont requis.");
     }
 
     const user = await this.userService.findOneByEmail(email);
@@ -84,14 +93,5 @@ export class AuthService {
   public async validateToken(payload: IJwtPayload): Promise<boolean> {
     const user = await this.userService.findOneById(payload.uuid);
     return !!user;
-  }
-
-  /**
-   * Returns a hashed string
-   * @param password
-   * @returns Hashed string
-   */
-  protected async getHash(password: string | undefined): Promise<string> {
-    return bcrypt.hash(password, this.saltRounds);
   }
 }
