@@ -11,12 +11,20 @@ import { IJwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
+  /**
+   * Returns a hashed string
+   * @param password
+   * @returns Hashed string
+   */
+  public static async getHash(password: string | undefined): Promise<string> {
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
+  }
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
-
-  private saltRounds = 10;
 
   /**
    * Check that the password matches the hash
@@ -38,16 +46,7 @@ export class AuthService {
    */
   public createToken(uuid): string {
     const userId: IJwtPayload = { uuid };
-    return this.jwtService.sign(userId);
-  }
-
-  /**
-   * Returns a hashed string
-   * @param password
-   * @returns Hashed string
-   */
-  public async getHash(password: string | undefined): Promise<string> {
-    return bcrypt.hash(password, this.saltRounds);
+    return this.jwtService.sign({ token: userId });
   }
 
   /**
@@ -67,7 +66,7 @@ export class AuthService {
 
     if (user.length > 0) {
       if (await this.compareHash(password, user[0].password)) {
-        return await this.createToken(user[0].email);
+        return await this.createToken(user[0].id);
       }
     }
 
@@ -81,7 +80,7 @@ export class AuthService {
    */
   public async signUp(user): Promise<User> {
     const newUser = user;
-    newUser.password = await this.getHash(user.password);
+    newUser.password = await AuthService.getHash(user.password);
     return this.userService.create(newUser);
   }
 
