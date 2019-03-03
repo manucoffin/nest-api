@@ -14,6 +14,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiResponse,
@@ -54,11 +55,13 @@ export class UserController {
   @Put()
   @UseGuards(new JwtAuthGuard())
   @ApiBearerAuth()
-  async update(
-    // @Param('id') id: string,
-    @Req() req,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  @ApiOkResponse({
+    description: 'Utilisateur mis à jour et retourné.',
+  })
+  @ApiForbiddenResponse({
+    description: 'Cet email est déjà utilisé.',
+  })
+  async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const toUpdateUser = new User(updateUserDto);
     // Le middleware set-req-user s'occupe de mettre l'id de l'user connecté dans la requête
     toUpdateUser.id = req.payload.token.uuid;
