@@ -65,7 +65,7 @@ export class UserService {
   async update(user: User) {
     if (user.email) {
       const existingUser = await this.findOneByEmail(user.email);
-      // Si l'utilisateur essaye de mettre à jour avec un email déjà existant chez un autre user
+      // If the user tries to update with an existing email
       if (existingUser[0] && existingUser[0].id !== user.id) {
         throw new ForbiddenException('Cet email est déjà utilisé.');
       }

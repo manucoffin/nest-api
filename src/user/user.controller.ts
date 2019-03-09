@@ -63,7 +63,7 @@ export class UserController {
   })
   async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const toUpdateUser = new User(updateUserDto);
-    // Le middleware set-req-user s'occupe de mettre l'id de l'user connecté dans la requête
+    // Set-req-user middleware sets the connected user id in the request object
     toUpdateUser.id = req.payload.token.uuid;
     return this.userService.update(toUpdateUser);
   }
