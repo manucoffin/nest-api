@@ -1,7 +1,13 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { SetReqUserMiddleware } from './auth/middlewares/set-req-user.middleware';
 import { CommentModule } from './comment/comment.module';
 import { UserModule } from './user/user.module';
 
@@ -10,4 +16,10 @@ import { UserModule } from './user/user.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(SetReqUserMiddleware)
+      .forRoutes({ path: 'user', method: RequestMethod.PUT });
+  }
+}

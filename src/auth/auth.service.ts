@@ -16,8 +16,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private saltRounds = 10;
-
   /**
    * Check that the password matches the hash
    * @param password
@@ -38,16 +36,16 @@ export class AuthService {
    */
   public createToken(uuid): string {
     const userId: IJwtPayload = { uuid };
-    return this.jwtService.sign(userId);
+    return this.jwtService.sign({ token: userId });
   }
-
   /**
    * Returns a hashed string
    * @param password
    * @returns Hashed string
    */
   public async getHash(password: string | undefined): Promise<string> {
-    return bcrypt.hash(password, this.saltRounds);
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
   }
 
   /**
@@ -67,7 +65,7 @@ export class AuthService {
 
     if (user.length > 0) {
       if (await this.compareHash(password, user[0].password)) {
-        return await this.createToken(user[0].email);
+        return await this.createToken(user[0].id);
       }
     }
 
