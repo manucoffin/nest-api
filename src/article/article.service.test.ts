@@ -12,6 +12,16 @@ describe('ArticleService', () => {
 
   beforeEach(async () => {});
 
+  it('Should call and return repository.create with an article passed in param', async () => {
+    const article = { title: 'Title 1' };
+    repository.save = jest.fn().mockResolvedValue(article);
+
+    const result = await service.create(article as any);
+
+    expect(result).toBe(article);
+    expect(repository.save).toHaveBeenCalledWith(article);
+  });
+
   describe('findAll', () => {
     it('Should call and return repository.find', async () => {
       const articles = [{ title: 'article 1' }, { title: 'article 2' }];
