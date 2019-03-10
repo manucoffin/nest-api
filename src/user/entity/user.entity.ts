@@ -20,6 +20,7 @@ import { UserCategory } from '../enums/user-category.enum';
 export class User {
   @OneToMany(type => Article, article => article.author)
   articles: Article[];
+
   @Column({ type: 'bytea', name: 'avatar', nullable: true })
   avatar: ArrayBuffer;
 
