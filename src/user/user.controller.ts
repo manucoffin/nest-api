@@ -41,15 +41,18 @@ export class UserController {
     return [];
   }
 
-  @Get(':id')
+  @Get()
+  @UseGuards(new JwtAuthGuard())
+  @ApiBearerAuth()
   @ApiOkResponse({
     description: 'Utilisateur trouvé et retourné.',
   })
   @ApiNotFoundResponse({
     description: 'Utilisateur non trouvé.',
   })
-  async getById(@Param('id') id: string) {
-    return this.userService.findOneById(id);
+  async getById(@Req() req) {
+    const uuid = req.payload.token.uuid;
+    return this.userService.findOneById(uuid);
   }
 
   @Put()

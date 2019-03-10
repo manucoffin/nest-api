@@ -14,10 +14,11 @@ describe('User Controller', () => {
   describe('getById', () => {
     it('Should return the result of service.getById', async () => {
       const id = 'monId';
-      const user = { name: 'toto' };
+      const request = { payload: { token: { uuid: id } } };
+      const user = { name: 'Georges' };
       service.findOneById = jest.fn().mockResolvedValue(user);
 
-      const result = await controller.getById(id);
+      const result = await controller.getById(request);
 
       expect(result).toBe(user);
       expect(service.findOneById).toHaveBeenCalledWith(id);
