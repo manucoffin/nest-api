@@ -19,10 +19,10 @@ export class AuthController {
 
   @Post('login')
   @ApiOkResponse({
-    description: 'Connexion effectuée.',
+    description: 'Logged in.',
   })
   @ApiBadRequestResponse({
-    description: 'Requête mal formée.',
+    description: 'Bad request.',
   })
   login(@Body() payload: SignInDto): Promise<string> {
     return this.authService.signIn(payload.email, payload.password);
@@ -30,10 +30,10 @@ export class AuthController {
 
   @Post('register')
   @ApiCreatedResponse({
-    description: 'Utilisateur inséré en base.',
+    description: 'User saved.',
   })
   @ApiBadRequestResponse({
-    description: 'Requête mal formée.',
+    description: 'Bad request.',
   })
   @UsePipes(ValidateEmailPipe)
   async register(@Body() registerDto: RegisterDto) {

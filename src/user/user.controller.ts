@@ -35,7 +35,7 @@ export class UserController {
   @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Liste des utilisateurs retournée.',
+    description: 'Users list returned.',
   })
   findAll() {
     return [];
@@ -45,10 +45,10 @@ export class UserController {
   @UseGuards(new JwtAuthGuard())
   @ApiBearerAuth()
   @ApiOkResponse({
-    description: 'Utilisateur trouvé et retourné.',
+    description: 'User found and returned.',
   })
   @ApiNotFoundResponse({
-    description: 'Utilisateur non trouvé.',
+    description: 'User not found.',
   })
   async getById(@Req() req) {
     const uuid = req.payload.token.uuid;
@@ -59,10 +59,10 @@ export class UserController {
   @UseGuards(new JwtAuthGuard())
   @ApiBearerAuth()
   @ApiOkResponse({
-    description: 'Utilisateur mis à jour et retourné.',
+    description: 'User updated and returned.',
   })
   @ApiForbiddenResponse({
-    description: 'Cet email est déjà utilisé.',
+    description: 'Email already in use.',
   })
   async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const toUpdateUser = new User(updateUserDto);
