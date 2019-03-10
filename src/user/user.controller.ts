@@ -31,12 +31,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('all')
+  @UseGuards(new JwtAuthGuard())
+  @ApiBearerAuth()
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Liste des utilisateurs retournée.',
   })
-  @UseGuards(new JwtAuthGuard())
-  @ApiBearerAuth()
   findAll() {
     return [];
   }

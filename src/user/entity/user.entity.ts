@@ -7,6 +7,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
+import { Article } from '../../article/entity/article.entity';
 import { Comment } from '../../comment/entity/comment.entity';
 import {
   getCopyConstructions,
@@ -17,6 +18,8 @@ import { UserCategory } from '../enums/user-category.enum';
 @Entity()
 @Unique(['email'])
 export class User {
+  @OneToMany(type => Article, article => article.author)
+  articles: Article[];
   @Column({ type: 'bytea', name: 'avatar', nullable: true })
   avatar: ArrayBuffer;
 
@@ -67,6 +70,7 @@ export class User {
     this.avatar = getOrDefault(copy.avatar, undefined) as any;
     this.category = getOrDefault(copy.category, undefined) as any;
     this.comments = getCopyConstructions(Comment, copy.comments) as any;
+    this.articles = getCopyConstructions(Article, copy.articles) as any;
     this.id = getOrDefault(copy.id, undefined);
   }
 }
