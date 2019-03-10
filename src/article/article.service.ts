@@ -15,7 +15,6 @@ export class ArticleService {
    * @returns Resolves with a created Article
    */
   async create(article: Article) {
-    // find author
     return this.articleRepository.save(article);
   }
 
