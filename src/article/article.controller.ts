@@ -33,4 +33,9 @@ export class ArticleController {
     const offset = +page || 1;
     return this.articleService.findAll(offset);
   }
+
+  @Get(':id')
+  getById(@Param() articleId: string) {
+    return this.articleService.findOneById(articleId);
+  }
 }

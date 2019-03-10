@@ -16,4 +16,10 @@ export class ArticleService {
   async findAll(page: number): Promise<Article[]> {
     return this.articleRepository.find({ skip: page, take: 20 });
   }
+
+  async findOneById(articleId: string): Promise<Article> {
+    return this.articleRepository.findOne(articleId, {
+      relations: ['author'],
+    });
+  }
 }
