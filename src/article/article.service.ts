@@ -10,10 +10,19 @@ export class ArticleService {
   ) {}
 
   /**
+   * Creates a new instance of Article in the database
+   * @param article
+   * @returns Resolves with a created Article
+   */
+  async create(article: Article) {
+    return this.articleRepository.save(article);
+  }
+
+  /**
    * Return all articles
    * @returns Resolves with a list of 20 articles
    */
   async findAll(page: number): Promise<Article[]> {
-    return this.articleRepository.find({ skip: page, take: 20 });
+    return this.articleRepository.find({ skip: (page - 1) * 20, take: 20 });
   }
 }
