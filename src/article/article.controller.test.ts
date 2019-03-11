@@ -40,4 +40,17 @@ describe('Article Controller', () => {
       expect(service.findAll).toHaveBeenCalledWith(+page);
     });
   });
+
+  describe('getById', () => {
+    it('Should return the result of service.getById', async () => {
+      const id = 'e723231f-1b95-45ee-b2a3-d4695c285899';
+      const article = { title: 'Test Title' };
+      service.findOneById = jest.fn().mockResolvedValue(article);
+
+      const result = await controller.getById(id);
+
+      expect(result).toBe(article);
+      expect(service.findOneById).toHaveBeenCalledWith(id);
+    });
+  });
 });

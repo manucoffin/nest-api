@@ -46,4 +46,24 @@ describe('ArticleService', () => {
       expect(result.length).toBeLessThanOrEqual(20);
     });
   });
+
+  describe('findOneById', () => {
+    it('Should make a request', async () => {
+      const id = 'e723231f-1b95-45ee-b2a3-d4695c285899';
+      const article = { title: 'Test Title' };
+      const getOne = jest.fn().mockReturnValueOnce(article);
+
+      repository.createQueryBuilder = jest.fn(() => ({
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getOne,
+      }));
+
+      const result = await service.findOneById(id);
+
+      expect(result).toBe(article);
+      expect(getOne).toHaveBeenCalled();
+    });
+  });
 });
