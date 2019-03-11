@@ -15,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiForbiddenResponse,
   ApiImplicitQuery,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiResponse,
   ApiUseTags,
@@ -68,7 +69,13 @@ export class ArticleController {
   }
 
   @Get(':id')
-  getById(@Param() articleId: string) {
+  @ApiOkResponse({
+    description: 'Article found.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Article not found.',
+  })
+  async getById(@Param('id') articleId: string) {
     return this.articleService.findOneById(articleId);
   }
 }

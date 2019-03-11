@@ -27,9 +27,18 @@ export class ArticleService {
     return this.articleRepository.find({ skip: (page - 1) * 20, take: 20 });
   }
 
+  /**
+   * Returns an article identified by its id, with its author and its comments
+   * @param articleId
+   * @returns Resolves with an article
+   */
   async findOneById(articleId: string): Promise<Article> {
-    return this.articleRepository.findOne(articleId, {
-      relations: ['author'],
-    });
+    return this.articleRepository
+      .createQueryBuilder('article')
+      .leftJoinAndSelect('article.author', 'author')
+      .leftJoinAndSelect('article.comments', 'comments')
+      .select(['article', 'comments', 'author.firstName', 'author.lastName'])
+      .where('article.id = :id', { id: articleId })
+      .getOne();
   }
 }
