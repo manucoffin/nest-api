@@ -7,10 +7,8 @@ import {
   Param,
   Post,
   Query,
-  ReflectMetadata,
   Req,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -21,7 +19,6 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { RegisterDto } from '../auth/dto/register.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../user/decorators/roles.decorator';
 import { ArticleService } from './article.service';
