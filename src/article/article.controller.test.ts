@@ -27,6 +27,22 @@ describe('Article Controller', () => {
     });
   });
 
+  describe('delete', () => {
+    it('Should return the result of service.delete', async () => {
+      const articleId = '91f93bb3-becb-4980-b392-b6034fea1c4b';
+      const returnedValue = {
+        raw: [[], 0],
+      };
+
+      service.delete = jest.fn().mockResolvedValue(returnedValue);
+
+      const result = await controller.delete(articleId);
+
+      expect(result).toBe(returnedValue);
+      expect(service.delete).toHaveBeenCalledWith(articleId);
+    });
+  });
+
   describe('getAll', () => {
     it('Should return the result of service.findAll', async () => {
       const articles = [{ title: 'article 1' }, { title: 'article 2' }];

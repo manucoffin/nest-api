@@ -66,4 +66,20 @@ describe('ArticleService', () => {
       expect(getOne).toHaveBeenCalled();
     });
   });
+
+  describe('delete', () => {
+    it('Should call and return repository.delete', async () => {
+      const articleId = '91f93bb3-becb-4980-b392-b6034fea1c4b';
+      const returnedValue = {
+        raw: [[], 0],
+      };
+
+      repository.delete = jest.fn().mockResolvedValue(returnedValue);
+
+      const result = await service.delete(articleId);
+
+      expect(result).toBe(returnedValue);
+      expect(repository.delete).toHaveBeenCalledWith(articleId);
+    });
+  });
 });

@@ -15,8 +15,16 @@ export class ArticleService {
    * @returns Resolves with a created Article
    */
   async create(article: Article) {
-    // check if author
     return this.articleRepository.save(article);
+  }
+
+  /**
+   * Remove an article from the database
+   * @param articleId
+   * @returns Resolves with a useless object
+   */
+  async delete(articleId: string): Promise<any> {
+    return this.articleRepository.delete(articleId);
   }
 
   /**

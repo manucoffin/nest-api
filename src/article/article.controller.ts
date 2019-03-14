@@ -1,15 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
   Post,
   Query,
-  ReflectMetadata,
   Req,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -20,12 +19,8 @@ import {
   ApiResponse,
   ApiUseTags,
 } from '@nestjs/swagger';
-import { RegisterDto } from '../auth/dto/register.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../user/decorators/roles.decorator';
-import { User } from '../user/entity/user.entity';
-import { UserCategory } from '../user/enums/user-category.enum';
-import { ValidateEmailPipe } from '../user/pipes/validate-email.pipe';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { Article } from './entity/article.entity';
@@ -36,7 +31,7 @@ import { RolesGuard } from './guards/roles.guard';
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
-  @Post('create')
+  @Post()
   @Roles('Author')
   @UseGuards(new JwtAuthGuard())
   @UseGuards(RolesGuard)
@@ -51,6 +46,21 @@ export class ArticleController {
     const article = new Article(createArticleDto);
     article.author = req.payload.token.uuid;
     return this.articleService.create(article);
+  }
+
+  @Delete(':id')
+  @Roles('Author')
+  @UseGuards(new JwtAuthGuard())
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Article deleted.',
+  })
+  @ApiForbiddenResponse({
+    description: 'Only Authors can delete articles.',
+  })
+  async delete(@Param('id') articleId: string) {
+    return this.articleService.delete(articleId);
   }
 
   @Get('all')
